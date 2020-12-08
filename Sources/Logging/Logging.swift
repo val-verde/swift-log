@@ -607,7 +607,11 @@ public struct MultiplexLogHandler: LogHandler {
 /// ensures access to the underlying `FILE` is locked to prevent
 /// cross-thread interleaving of output.
 internal struct StdioOutputStream: TextOutputStream {
+#if os(Android) || os(Musl)
+    internal let file: OpaquePointer
+#else
     internal let file: UnsafeMutablePointer<FILE>
+#endif
     internal let flushMode: FlushMode
 
     internal func write(_ string: String) {
