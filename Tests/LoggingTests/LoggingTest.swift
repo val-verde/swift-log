@@ -688,7 +688,13 @@ class LoggingTest: XCTestCase {
         }
     }
 
-    func withWriteReadFDsAndReadBuffer(_ body: (UnsafeMutablePointer<FILE>, CInt, UnsafeMutablePointer<Int8>) -> Void) {
+#if os(Android) || os(Musl)
+    typealias FilePointer = OpaquePointer
+#else
+    typealias FilePointer = UnsafeMutablePointer<FILE>
+#endif
+
+    func withWriteReadFDsAndReadBuffer(_ body: (FilePointer, CInt, UnsafeMutablePointer<Int8>) -> Void) {
         var fds: [Int32] = [-1, -1]
         fds.withUnsafeMutableBufferPointer { ptr in
             let err = pipe(ptr.baseAddress!)
